@@ -4,22 +4,37 @@ Created on Sun Oct 22 19:48:57 2017
 
 @author: mohamed
 """
-from pydatabase import list_util
+from pycommonutil import list_util
+import json
 class Common(object):
+    excludedFields = {}
+    def toJSON(self, excludedFields={}):
+        d = self.__dict__
+        for k in sorted(self.__dict__.keys()):
+            if k[0] == '_' or k in excludedFields:
+                d.pop(k, None)
+        return json.dumps(d)
+
     def __repr__(self):
         return "<{}({})>".format(
             self.__class__.__name__,
             ', '.join(
                 ["{}={}".format(k, repr(self.__dict__[k]))
                     for k in sorted(self.__dict__.keys())
-                    if k[0] != '_']
+                    if k[0] != '_' and k not in self.excludedFields]
             )
         )
-        
+    """
     def copy(self,orig,excludedFields={}):
         for k in sorted(orig.__dict__.keys()):
             if k[0] != '_' and k not in excludedFields:
                 self.__dict__[k] = orig.__dict__[k]
+    """
+    def copy(self, orig):
+        for k in sorted(orig.__dict__.keys()):
+            if k[0] != '_':
+                self.__dict__[k] = orig.__dict__[k]
+
     @classmethod
     def toCSV(self,objects,fileName,separator=','):
         out = open(fileName, 'w')
